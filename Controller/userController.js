@@ -19,10 +19,11 @@ const setUsers = asyncHandler(async (req, res) => {
         throw new Error("Please Provide Your Name");
     }
     const newUser = await User.create({
-        name: req.body.name,
-        username: req.body.username,
+        fullname: req.body.fullname,
+        countryId: req.body.country,
         email: req.body.email,
         phoneNo: req.body.phoneNo,
+        userType: req.body.userType,
         password: req.body.password
     });
     //console.log(user);

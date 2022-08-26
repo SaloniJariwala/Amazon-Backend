@@ -5,17 +5,19 @@ const userSchema = mongoose.Schema({
         type: String,
         required: [true, 'Please Add Your Name']
     },
-    username: {
-        type: String,
-        required: [true, 'Please Add Your Username']
+    countryId: {
+        type: Number,
     },
     phoneNo: {
         type: Number,
         required: [true, 'Plaese Add Your Mobile Number']
     },
+    userType: {
+        type: String,
+        required: [true, 'Please Provide User Type']
+    },
     email: {
         type: String,
-        required: [true, 'Please Add Your Email']
     },
     password: {
         type: String
