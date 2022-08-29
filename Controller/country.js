@@ -1,4 +1,4 @@
-const Country = require("../Model/countryModel");
+const Country = require("../Model/country");
 const asyncHandler = require("express-async-handler");
 
 const getCountries = asyncHandler(async (req, res) => {
