@@ -1,11 +1,43 @@
 const User = require("../Model/user");
 const bcrypt = require('bcryptjs');
 const asyncHandler = require("express-async-handler");
-const { response } = require("express");
+const jwt = require("jsonwebtoken");
 
-const getUsers = asyncHandler(async (req, res) => {
-    const allUsers = await User.find();
-    res.status(200).json(allUsers);
+const getUser = asyncHandler(async (req, res) => {
+    // const allUsers = await User.find();
+    // res.status(200).json(allUsers);
+    let emailUser, phoneNoUser;
+    if (req.body.email) {
+        emailUser = User.find({ email: req.body.email });
+        // console.log(emailUser);
+    } else {
+        phoneNoUser = User.find({ phoneNo: req.body.phoneNo });
+    }
+    console.log(emailUser, ",", phoneNoUser);
+    if (!emailUser || !phoneNoUser) {
+        res.status(400).send("User Not Found");
+    }
+    const user = emailUser ? emailUser : phoneNoUser;
+    console.log(user);
+    bcrypt.compare(req.body.password, user[0].password, (error, success) => {
+        if (!success) {
+            return res.status(401).send("Your Password is incorrect");
+        }
+        if (success) {
+            const token = jwt.sign(
+                {
+                    email: user[0].email,
+                    phoneNo: user[0].phoneNo,
+                    userType: user[0].userType
+                },
+                "Login Token",
+                {
+                    expiresIn: "24h"
+                }
+            );
+            res.status(200).send(token);
+        }
+    })
 });
 
 const getUserById = asyncHandler(async (req, res) => {
@@ -13,7 +45,7 @@ const getUserById = asyncHandler(async (req, res) => {
     res.status(200).json(user);
 });
 
-const setUsers = asyncHandler((req, res) => {
+const setUser = asyncHandler((req, res) => {
     if (!req.body) {
         res.status(400);
         res.send("Provide your details");
@@ -35,7 +67,7 @@ const setUsers = asyncHandler((req, res) => {
                     res.status(200).json(result);
                 })
                 .catch((error) => {
-                    res.status(500).json({ error });
+                    res.status(500).json(error);
                 });
         }
     })
@@ -69,4 +101,4 @@ const deleteUsers = asyncHandler(async (req, res) => {
     res.status(200).json(user);
 })
 
-module.exports = { getUsers, setUsers, putUsers, deleteUsers, getUserById }
+module.exports = { getUser, setUser, putUsers, deleteUsers, getUserById }
