@@ -1,44 +1,53 @@
 const User = require("../Model/user");
 const bcrypt = require('bcryptjs');
 const asyncHandler = require("express-async-handler");
-const { response } = require("express");
+const jwt = require("jsonwebtoken");
+const SECRET_KEY = "User Authentication";
 
-const getUsers = asyncHandler(async (req, res) => {
-    const allUsers = await User.find();
-    res.status(200).json(allUsers);
+
+const getUser = asyncHandler(async (req, res) => {
+    let selectedUser;
+    if (!req.body.emailOrPhone.includes('@')) {
+        selectedUser = await User.findOne({ phoneNo: req.body.emailOrPhone });
+    } else {
+        selectedUser = await User.findOne({ email: req.body.emailOrPhone });
+    }
+    if (!selectedUser) {
+        return res.status(404).send("User Not Found");
+    }
+    const passwordMatched = bcrypt.compare(req.body.password, selectedUser.password);
+    if (!passwordMatched) {
+        return res.status(400).send("Your password is incorrect");
+    }
+    const token = jwt.sign({
+        id: selectedUser._id,
+        email: selectedUser.email,
+        phoneNo: selectedUser.phoneNo
+    }, SECRET_KEY);
+    res.status(200).json({ user: selectedUser, token });
 });
+
 
 const getUserById = asyncHandler(async (req, res) => {
     const user = await User.findById(req.params.id);
     res.status(200).json(user);
 });
 
-const setUsers = asyncHandler((req, res) => {
+const setUser = asyncHandler(async (req, res) => {
     if (!req.body) {
         res.status(400);
         res.send("Provide your details");
     }
-    let newUser;
-    bcrypt.hash(req.body.password, 10, (error, hash) => {
-        if (error) {
-            return res.status(500).json({ error });
-        } else {
-            newUser = User.create({
-                fullname: req.body.fullname,
-                countryId: req.body.country,
-                email: req.body.email,
-                phoneNo: req.body.phoneNo,
-                userType: req.body.userType,
-                password: hash
-            })
-                .then((result) => {
-                    res.status(200).json(result);
-                })
-                .catch((error) => {
-                    res.status(500).json({ error });
-                });
-        }
+    const hashedPassword = await bcrypt.hash(req.body.password, 10);
+    const newUser = await User.create({
+        fullname: req.body.fullname,
+        countryId: req.body.country,
+        email: req.body.email,
+        phoneNo: req.body.phoneNo,
+        userType: req.body.userType,
+        password: hashedPassword
     })
+    res.status(200).json({ user: newUser });
 });
 
 const putUsers = asyncHandler(async (req, res) => {
@@ -69,4 +78,4 @@ const deleteUsers = asyncHandler(async (req, res) => {
     res.status(200).json(user);
 })
 
-module.exports = { getUsers, setUsers, putUsers, deleteUsers, getUserById }
+module.exports = { getUser, setUser, putUsers, deleteUsers, getUserById }

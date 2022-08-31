@@ -10,7 +10,7 @@ const userSchema = mongoose.Schema(
             type: String,
         },
         phoneNo: {
-            type: Number,
+            type: String,
             unique: true,
             match: /[0-9]/,
             required: [true, 'Plaese Add Your Mobile Number']
@@ -21,8 +21,8 @@ const userSchema = mongoose.Schema(
         },
         email: {
             type: String,
-            trim: true,
-            unique: true
+            // trim: true,
+            // unique: [true, 'Email already used']
         },
         password: {
             type: String
