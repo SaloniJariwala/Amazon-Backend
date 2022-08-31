@@ -10,7 +10,7 @@ const userSchema = mongoose.Schema(
             type: String,
         },
         phoneNo: {
-            type: Number,
+            type: String,
             unique: true,
             match: /[0-9]/,
             required: [true, 'Plaese Add Your Mobile Number']
