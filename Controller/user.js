@@ -46,7 +46,7 @@ const setUser = asyncHandler(async (req, res) => {
         phoneNo: req.body.phoneNo,
         userType: req.body.userType,
         password: hashedPassword
-    })
+    });
     res.status(200).json({ user: newUser });
 });
 
