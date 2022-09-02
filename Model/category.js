@@ -4,6 +4,14 @@ const categorySchema = mongoose.Schema(
     {
         name: {
             type: String,
+        },
+        subCategories: {
+            id: {
+                type: Number,
+            },
+            name: {
+                type: String,
+            }
         }
     },
     {
@@ -11,4 +19,4 @@ const categorySchema = mongoose.Schema(
     }
 );
 
-module.exports = mongoose.model('categories',)
+module.exports = mongoose.model('categories', categorySchema);

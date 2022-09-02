@@ -14,6 +14,6 @@ const countrySchema = mongoose.Schema({
     {
         timestamp: true,
     }
-)
+);
 
 module.exports = mongoose.model("countries", countrySchema);
