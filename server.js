@@ -14,5 +14,6 @@ app.use(cors());
 
 app.use("/api/users", require("./Routes/userRoutes"));
 app.use("/api/countries", require("./Routes/CountryRoutes"));
+app.use("/api/categories", require("./Routes/CategoryRoutes"));
 
 app.listen(port, () => console.log(`Server started on port ${port}`));
