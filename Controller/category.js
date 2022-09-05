@@ -12,12 +12,9 @@ const setCategory = asyncHandler(async (req, res) => {
     }
     const category = await Category.create({
         name: req.body.name,
-        subCategories: {
-            id: req.body.subCategories.id,
-            name: req.body.subCategories.name
-        }
+        subCategory: req.body.subCategory
     });
     res.status(200).json({category});
 });
 
-module.exports = {getCategories};
+module.exports = {getCategories, setCategory};

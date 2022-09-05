@@ -3,14 +3,14 @@ const bcrypt = require('bcryptjs');
 const asyncHandler = require("express-async-handler");
 const jwt = require("jsonwebtoken");
 const SECRET_KEY = "User Authentication";
-
+const API_KEY = "BLOGSIDER";
 
 const getUser = asyncHandler(async (req, res) => {
     let selectedUser;
     if (!req.body.emailOrPhone.includes('@')) {
-        selectedUser = await User.findOne({ phoneNo: req.body.emailOrPhone });
+        selectedUser = await User.findOne({phoneNo: req.body.emailOrPhone});
     } else {
-        selectedUser = await User.findOne({ email: req.body.emailOrPhone });
+        selectedUser = await User.findOne({email: req.body.emailOrPhone});
     }
     if (!selectedUser) {
         return res.status(404).send("User Not Found");
@@ -24,7 +24,7 @@ const getUser = asyncHandler(async (req, res) => {
         email: selectedUser.email,
         phoneNo: selectedUser.phoneNo
     }, SECRET_KEY);
-    res.status(200).json({ user: selectedUser, token });
+    res.status(200).json({user: selectedUser, token});
 });
 
 
@@ -34,20 +34,27 @@ const getUserById = asyncHandler(async (req, res) => {
 });
 
 const setUser = asyncHandler(async (req, res) => {
-    if (!req.body) {
-        res.status(400);
-        res.send("Provide your details");
+    console.log(await bcrypt.hash(API_KEY, 10));
+    const compared = await bcrypt.compare(API_KEY, req.query.token);
+
+    if (compared) {
+        if (!req.body) {
+            res.status(400);
+            res.send("Provide your details");
+        }
+        const hashedPassword = await bcrypt.hash(req.body.password, 10);
+        const newUser = await User.create({
+            fullname: req.body.fullname,
+            countryId: req.body.country,
+            email: req.body.email,
+            phoneNo: req.body.phoneNo,
+            userType: req.body.userType,
+            password: hashedPassword
+        });
+        res.status(200).json({user: newUser});
+    } else {
+        res.status(400).send("Unauthorised Access");
     }
-    const hashedPassword = await bcrypt.hash(req.body.password, 10);
-    const newUser = await User.create({
-        fullname: req.body.fullname,
-        countryId: req.body.country,
-        email: req.body.email,
-        phoneNo: req.body.phoneNo,
-        userType: req.body.userType,
-        password: hashedPassword
-    });
-    res.status(200).json({ user: newUser });
 });
 
 const putUsers = asyncHandler(async (req, res) => {
@@ -60,10 +67,10 @@ const putUsers = asyncHandler(async (req, res) => {
 
     const updatedUser = await User.findByIdAndUpdate(req.params.id, req.body, {
         new: true,
-    })
+    });
 
     res.status(200).json(updatedUser);
-})
+});
 
 const deleteUsers = asyncHandler(async (req, res) => {
     const user = await User.findById(req.params.id);
@@ -76,6 +83,6 @@ const deleteUsers = asyncHandler(async (req, res) => {
     await user.remove();
 
     res.status(200).json(user);
-})
+});
 
-module.exports = { getUser, setUser, putUsers, deleteUsers, getUserById }
+module.exports = {getUser, setUser, putUsers, deleteUsers, getUserById};
