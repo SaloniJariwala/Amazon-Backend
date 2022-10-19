@@ -19,6 +19,7 @@ const getUser = asyncHandler(async (req, res) => {
     if (!passwordMatched) {
         return res.status(400).send("Your password is incorrect");
     }
+
     const token = jwt.sign({
         id: selectedUser._id,
         email: selectedUser.email,
@@ -43,15 +44,6 @@ const setUser = asyncHandler(async (req, res) => {
             res.send("Provide your details");
         }
         const hashedPassword = await bcrypt.hash(req.body.password, 10);
-        const newUser = await User.create({
-            fullname: req.body.fullname,
-            countryId: req.body.country,
-            email: req.body.email,
-            phoneNo: req.body.phoneNo,
-            userType: req.body.userType,
-            password: hashedPassword
-        });
-        res.status(200).json({user: newUser});
     } else {
         res.status(400).send("Unauthorised Access");
     }
